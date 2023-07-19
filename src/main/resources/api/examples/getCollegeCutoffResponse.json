@@ -1,0 +1,8 @@
+{
+                "collegeId" : "12345",
+                "collegeName" : "BIT Sindri",
+                "branch" : "ECE",
+                "category": "SC",
+                "generalRank" : 5000,
+                "categoryRank" : 789
+              }

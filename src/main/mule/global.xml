@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
+	xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+	xmlns:mongo="http://www.mulesoft.org/schema/mule/mongo" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/mongo http://www.mulesoft.org/schema/mule/mongo/current/mule-mongo.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+	<configuration-properties doc:name="Configuration properties" doc:id="019f68fb-17d7-4f5b-8f22-732146a2668c" file="properties\sys-e-counselling-${env}.yaml" />
+	<mongo:config name="MongoDB_Config" doc:name="MongoDB Config" doc:id="27310422-3c88-4c41-9329-61976b491f80" >
+		<mongo:connection database="studentDB" username="${mongodb.user.userId}" password="${secure::mongodb.user.password}" authenticationMechanism="SCRAM_SHA_1" replicaSetName="${mongodb.atlas.replicaSet}" authenticationSource="${mongodb.atlas.authenticationSource}" retryWrites="true">
+			<tls:context >
+				<tls:trust-store insecure="true" />
+			</tls:context>
+			<mongo:server-addresses >
+				<mongo:server-address host="${mongodb.atlas.secondaryHost1}" port="${mongodb.atlas.port}" />
+				<mongo:server-address host="${mongodb.atlas.primaryHost}" port="${mongodb.atlas.port}" />
+				<mongo:server-address host="${mongodb.atlas.secondaryHost2}" port="${mongodb.atlas.port}" />
+			</mongo:server-addresses>
+		</mongo:connection>
+	</mongo:config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="55e25e60-e0d2-4ff5-884f-896bff0a06df" >
+		<db:my-sql-connection host="${database.host}" port="${database.port}" user="${database.user.userId}" password="${secure::database.user.password}" database="${database.databaseName}" />
+	</db:config>
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="ae7e8e52-edae-4a5f-9fe2-eb4bf94ca9e3" file="properties\sys-e-counselling-${env}.yaml" key="${key.property}" />
+	<configuration doc:name="Configuration" doc:id="232eb4ce-702d-4533-bc1d-7b766f4bc616" defaultErrorHandler-ref="Global_Error_Handler" />
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="7ed61a6d-638c-4f3b-a42a-386120b28e9f" >
+		<http:listener-connection host="0.0.0.0" port="8082" protocol="HTTPS">
+			<tls:context >
+				<tls:key-store type="jks" path="keystore.jks" keyPassword="mulesoft" password="mulesoft" />
+			</tls:context>
+		</http:listener-connection>
+	</http:listener-config>
+	<api-gateway:autodiscovery apiId="18794429" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="b8896a47-7341-4971-a1f6-eb061dbc5da2" flowRef="api-main" />
+</mule>
